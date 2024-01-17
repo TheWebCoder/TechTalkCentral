@@ -44,10 +44,10 @@
                         <a class="nav-link active" aria-current="page" href="code.html">The Code</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" target="_blank" href="#">Git Repo</a>
+                        <a class="nav-link" target="_blank" href="https://github.com/TheWebCoder/TechTalkCentral">Git Repo</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" target="_blank" href="#">About</a>
+                        <a class="nav-link" target="_blank" href="https://bryangonzalez.dev/">About</a>
                     </li>
                 </ul>
             </div>
@@ -61,17 +61,163 @@
             <div class="row row-cols-1 row-cols-lg-2">
                 <div class="col-lg-8">
                     <pre class="line-numbers"><code class="language-javascript">
-                        //Call Hello World
-                        function HelloWorld() {
-                            alert("Hello World");
+                        //build a dropdown of specific cities
+                        function buildDropDown() {
+                            //grab the select list we want to add city names to.
+                            let eventDD = document.getElementById("eventDropDown");
+                            eventDD.innerHTML = "";
+                            //grab a template we want to use to populate the select list
+                            const template = document.getElementById("cityDD-template");
+                        
+                            //Pull the events from local storage if there are none pull form the
+                            //default data.
+                            curEvents = JSON.parse(localStorage.getItem("eventsArray"));
+                            if (curEvents == null) {
+                                curEvents = events;
+                            }
+                        
+                            let distinctEvents = [...new Set(curEvents.map((event) => event.city))];
+                            let ddItemNode = document.importNode(template.content, true);
+                            ddItem = ddItemNode.querySelector("a");
+                            ddItem.setAttribute("data-string", "All");
+                            ddItem.textContent = "All";
+                            eventDD.appendChild(ddItem);
+                        
+                            for (var i = 0; i < distinctEvents.length; i++) {
+                                ddItemNode = document.importNode(template.content, true);
+                                ddItem = ddItemNode.querySelector("a");
+                                ddItem.setAttribute("data-string", distinctEvents[i]);
+                                ddItem.textContent = distinctEvents[i];
+                                eventDD.appendChild(ddItem);
+                            }
+
+                            displayStats(curEvents);
+                            displayData();
+                        }
+                        
+                        //show stats for a specific location
+                        function getEvents(element) {
+                            let city = element.getAttribute("data-string");
+                            curEvents = JSON.parse(localStorage.getItem("eventsArray")) || events;
+                            let filteredEvents = curEvents;
+                        
+                            document.getElementById("statsHeader").innerHTML = `Stats For ${city} Events`;
+                            if (city != "All") {
+                                //Explain how array filtering works-
+                                filteredEvents = curEvents.filter(function (item) {
+                                    if (item.city == city) {
+                                    return item;
+                                    }
+                                });
+                            }
+
+                            displayStats(filteredEvents);
+                        }
+                        
+                        function displayStats(filteredEvents) {
+                            let total = 0;
+                            let average = 0;
+                            let most = 0;
+                            let least = -1;
+                            let currentAttendance = 0;
+                        
+                            //display total attendance
+                            for (let i = 0; i < filteredEvents.length; i++) {
+                                currentAttendance = filteredEvents[i].attendance;
+                                total += currentAttendance;
+                            
+                                if (most < currentAttendance) {
+                                    most = currentAttendance;
+                                }
+                            
+                                if (least > currentAttendance || least < 0) {
+                                    least = currentAttendance;
+                                }
+                            }
+                            average = total / filteredEvents.length;
+                        
+                            document.getElementById("total").innerHTML = total.toLocaleString();
+                            document.getElementById("most").innerHTML = most.toLocaleString();
+                            document.getElementById("least").innerHTML = least.toLocaleString();
+                            document.getElementById("average").innerHTML = average.toLocaleString(
+                            undefined, {
+                                minimumFractionDigits: 0,
+                                maximumFractionDigits: 0,
+                            });
+                        }
+                        
+                        function displayData() {
+                            const template = document.getElementById("eventData-template");
+                            const eventBody = document.getElementById("eventBody");
+                            //clear table first
+                            eventBody.innerHTML = "";
+                            //grab the events from local storage
+                            let curEvents = JSON.parse(localStorage.getItem("eventsArray")) || [];
+                        
+                            if (curEvents.length == 0) {
+                                curEvents = events;
+                                localStorage.setItem("eventsArray", JSON.stringify(curEvents));
+                            }
+                        
+                            for (let i = 0; i < curEvents.length; i++) {
+                                const eventRow = document.importNode(template.content, true);
+                                //grab only the columns in the template
+                                eventCols = eventRow.querySelectorAll("td");
+                            
+                                eventCols[0].textContent = curEvents[i].event;
+                                eventCols[1].textContent = curEvents[i].city;
+                                eventCols[2].textContent = curEvents[i].state;
+                                eventCols[3].textContent = curEvents[i].attendance;
+                                eventCols[4].textContent = new Date(curEvents[i].date).toLocaleDateString();
+                            
+                                eventBody.appendChild(eventRow);
+                            }
+                        }
+                        
+                        function saveEventData() {
+                            //grab the events out of local storage
+                            let curEvents = JSON.parse(localStorage.getItem("eventsArray")) || events;
+                        
+                            //document.getElementById("newEventName");
+                            let obj = {};
+                            obj["event"] = document.getElementById("newEventName").value;
+                            obj["city"] = document.getElementById("newEventCity").value;
+                        
+                            let stateSel = document.getElementById("newEventState");
+                            obj["state"] = stateSel.options[stateSel.selectedIndex].text
+                        
+                            obj["attendance"] = parseInt(
+                            document.getElementById("newEventAttendance").value,10);
+                        
+                            let eventDate = document.getElementById("newEventDate").value;
+                            let eventDate2 = `${eventDate} 00:00`
+                        
+                            obj["date"] = new Date(eventDate2).toLocaleDateString();
+                        
+                            curEvents.push(obj);
+                        
+                            localStorage.setItem("eventsArray", JSON.stringify(curEvents));
+
+                            //clear the form
+                            //Access the values from the form by ID and add an object to the array.
+                            buildDropDown();
+                            displayData();
                         }
                     </code>
                     </pre>
                 </div>
                 <div class="col-lg-4">
-                    <p>The Code is structured in one function.</p>
-                    <h5>Hello World</h5>
-                    <p>Hello World is a function that displays an alert with a message of "Hello World"</p>
+                    <p>The Code is structured in five functions.</p>
+                    <h5>buildDropDown()</h5>
+                    <p>Responsible for building the dropdown menu. It selects the dropdown element where the city names will be added. The function then checks local storage for a previous events array entry. If it doesn't find any events, it will default to a predined array of events. Next it extracts distinct city names by utilizing a set object which does not bring back any duplicates. Then each city is added dynamically along with the "All" option to the dropdown. After the dropdown menu is populated, the function calls displayStats() and displayData() to update the page.</p>
+                    <h5>getEvents(element)</h5>
+                    <p>This function is trigged when a city is selected from the dropdown menu. First it retrieves the selected city's name from the element's data attribute. Next it either filters the events array from local storage or it degaults to the predined events array showing only the events of the selected city. Additionally it updates the header of the page to reflect the selected city. Lastly it calls displayStats() with the filtered events array, this updates the statistics on the page.</p>
+                    <h5>displayStats(filteredEvents)</h5>
+                    <p>Calculates and displays stats for a set of events. It iterates through the events array and calculates the following, total attendance, least attended event, most attended event, and average attendance. The stats are then displayed on the page with proper formatting to enhance readability. Lastly the the average attendance is formatted to show no decimal points.</p>
+                    <h5>displayData()</h5>
+                    <p>This function displays the event data in a table format. First it clears the existing data in the table, then it checks local storage for the events array, and if it doesn't find one, it will default to the predined array. Next it iterates over the events array, imports a row template for each event, and populates it with event data. The data includes event name, city, state, attendance, and date. Each of the populated row is then added to the table body on the page. </p>
+                    <h5>saveEventData()</h5>
+                    <p>Adds the new event to the events array. First it will check to see if there is an events array present in local storage and if not it will default to the predefined array. Next it creates an object for the newly added event, taking the values from the form fields from the page. The fields include event name, city, state, attendance, and date. This new object is then added to the events array and saved to local storage. Lastly, after the events array is updated, calls are made to the buildDropDown() and displayData() to update the dropdown menu and update the page with the updated event data.</p>
                 </div>
             </div>
         </div>
@@ -88,8 +234,8 @@
                 </div>
                 <div class="col d-flex align-items-center justify-content-start justify-content-lg-end">
                     <div class="row">
-                        <div class="col social"><a href="#" target="_blank"><i class="fab fa-linkedin fa-2x"></i></a></div>
-                        <div class="col social"><a href="#" target="_blank"><i class="fab fa-github fa-2x"></i></a></div>
+                        <div class="col social"><a href="https://www.linkedin.com/in/the-web-coder/" target="_blank"><i class="fab fa-linkedin fa-2x"></i></a></div>
+                        <div class="col social"><a href="https://github.com/TheWebCoder/" target="_blank"><i class="fab fa-github fa-2x"></i></a></div>
                         <div class="col social"><a href="#" target="_blank"><i class="fab fa-twitter fa-2x"></i></a></div>
                     </div>
                 </div>
