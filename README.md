@@ -1,7 +1,7 @@
 # TechTalk Central
 
 ## Overview
-TechTalk Central is a dynamic web application designed to showcase and manage tech-related webinars and talks across various cities. The application provides insightful statistics about these events, such as total and average attendance, and highlights the most and least attended events. It leverages JavaScript and Bootstrap to create an interactive and responsive user experience.
+TechTalk Central is a platform that organizes tech-related webinars and talks across various cities. The marketing team has requested a site that displays stats from these events. The application provides insightful statistics about these events, such as total and average attendance, and highlights the most and least attended events. It leverages JavaScript and Bootstrap to create an interactive and responsive user experience.
 
 ## Features
 - **Dynamic Event Statistics**: Displays key metrics like total attendance, average attendance, and specific event highlights by city.
